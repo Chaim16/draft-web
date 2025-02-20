@@ -1,5 +1,11 @@
 # draft-web-develop
 
+## Environment
+
+- node.js: v18.16.0
+- npm: 9.5.1
+- @vue/cli: 5.0.8
+
 ## Project setup
 ```
 npm install
