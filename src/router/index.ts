@@ -1,22 +1,48 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import HomeView from "../views/HomeView.vue";
+import {
+  HomeOutlined,
+  SwapOutlined,
+  UserOutlined,
+  PlusOutlined,
+} from "@ant-design/icons-vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: "/",
-    name: "home",
+    path: "/home",
+    name: "首页",
+    meta: {
+      icon: HomeOutlined,
+    },
     component: HomeView,
   },
   {
-    path: "/about",
-    name: "about",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
+    path: "/market",
+    name: "画稿中心",
+    meta: {
+      icon: SwapOutlined,
+    },
+    component: HomeView,
+  },
+  {
+    path: "/profile",
+    name: "个人中心",
+    meta: {
+      icon: UserOutlined,
+    },
+    component: HomeView,
+  },
+  {
+    path: "/release",
+    name: "发布画稿",
+    meta: {
+      icon: PlusOutlined,
+    },
+    component: HomeView,
   },
 ];
+
+export { routes };
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
