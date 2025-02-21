@@ -8,11 +8,10 @@
         <router-view />
       </a-layout-content>
       <a-layout-footer class="footer">
-        <a href="http://www.baidu.com">yuqm</a>
+        <p>© 2025 公司名称. 保留所有权利.</p>
       </a-layout-footer>
     </a-layout>
   </div>
-  <router-view />
 </template>
 <script>
 import { defineComponent } from "vue";

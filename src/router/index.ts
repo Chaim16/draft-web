@@ -6,6 +6,8 @@ import {
   UserOutlined,
   PlusOutlined,
 } from "@ant-design/icons-vue";
+import UserRegister from "@/views/user/UserRegister.vue";
+import UserLogin from "@/views/user/UserLogin.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -39,6 +41,22 @@ const routes: Array<RouteRecordRaw> = [
       icon: PlusOutlined,
     },
     component: HomeView,
+  },
+  {
+    path: "/user/register",
+    name: "用户注册",
+    component: UserRegister,
+    meta: {
+      hideInMenu: true,
+    },
+  },
+  {
+    path: "/user/login",
+    name: "用户登录",
+    component: UserLogin,
+    meta: {
+      hideInMenu: true,
+    },
   },
 ];
 

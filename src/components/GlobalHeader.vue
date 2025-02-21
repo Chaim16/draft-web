@@ -7,7 +7,7 @@
     <div class="header-middle">
       <a-menu mode="horizontal" :selected-keys="selectedKeys">
         <a-menu-item
-          v-for="item in routes"
+          v-for="item in filteredRoutes"
           :key="item.path"
           @click="handleMenuClick(item)"
         >
@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="header-right">
-      <div class="login-or-register">
+      <div class="login-or-register" @click="router.push('/user/login')">
         {{ store.state.user?.loginUser?.username ?? "未登录" }}
       </div>
     </div>
@@ -38,7 +38,6 @@
 <script setup lang="ts">
 import { routes } from "@/router";
 import { useStore } from "vuex";
-
 import { useRouter } from "vue-router";
 import { useRoute } from "vue-router";
 import { computed } from "vue";
@@ -48,6 +47,15 @@ const selectedKeys = computed(() => [route.path]);
 
 const router = useRouter();
 const store = useStore();
+
+// 过滤有效菜单项
+const filteredRoutes = computed(() => {
+  return routes.filter(
+    (route) =>
+      route.name && // 必须有名称
+      !route.meta?.hideInMenu // 未标记隐藏
+  );
+});
 
 const handleMenuClick = (item: object) => {
   router.push({
