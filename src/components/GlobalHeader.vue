@@ -28,13 +28,16 @@
       </div>
     </div>
     <div class="header-right">
-      <p class="login-or-register">登录/注册</p>
+      <div class="login-or-register">
+        {{ store.state.user?.loginUser?.username ?? "未登录" }}
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { routes } from "@/router";
+import { useStore } from "vuex";
 
 import { useRouter } from "vue-router";
 import { useRoute } from "vue-router";
@@ -44,6 +47,7 @@ const route = useRoute();
 const selectedKeys = computed(() => [route.path]);
 
 const router = useRouter();
+const store = useStore();
 
 const handleMenuClick = (item: object) => {
   router.push({
@@ -145,10 +149,10 @@ const handleMenuClick = (item: object) => {
   font-size: 16px;
   font-weight: 500;
   margin-right: 66px;
-  margin-top: 18px;
+  margin-top: 5px;
 }
 
-.header-right p:hover {
+.header-right .login-or-register:hover {
   opacity: 0.8;
 }
 
