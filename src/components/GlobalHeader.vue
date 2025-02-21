@@ -5,8 +5,12 @@
       <span class="system-name">在线画稿交易平台</span>
     </div>
     <div class="header-middle">
-      <a-menu mode="horizontal">
-        <a-menu-item v-for="item in routes" :key="item.path">
+      <a-menu mode="horizontal" :selected-keys="selectedKeys">
+        <a-menu-item
+          v-for="item in routes"
+          :key="item.path"
+          @click="handleMenuClick(item)"
+        >
           <component
             :is="item.meta?.icon"
             v-if="item.meta?.icon"
@@ -31,6 +35,21 @@
 
 <script setup lang="ts">
 import { routes } from "@/router";
+
+import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
+import { computed } from "vue";
+
+const route = useRoute();
+const selectedKeys = computed(() => [route.path]);
+
+const router = useRouter();
+
+const handleMenuClick = (item: object) => {
+  router.push({
+    path: item.path,
+  });
+};
 </script>
 
 <style scoped>
@@ -57,10 +76,10 @@ import { routes } from "@/router";
 }
 
 .system-name {
-  font-size: 20px;
   color: white;
   font-weight: 500;
   margin-right: 20px;
+  font-size: clamp(16px, 1.2vw, 20px);
 }
 
 .header-middle {
@@ -69,12 +88,15 @@ import { routes } from "@/router";
   justify-content: space-between; /* 左右分开 */
   align-items: center;
   padding: 0 50px; /* 两侧留白 */
+  min-width: 400px; /* 设置最小宽度防止过度挤压 */
+  overflow: hidden; /* 防止内容溢出 */
 }
 
 /* 菜单 */
 #header ::v-deep .ant-menu {
   background-color: #40ccff !important;
   border-bottom: none !important;
+  gap: 8px;
 }
 
 /* 覆盖菜单项 */
@@ -103,6 +125,7 @@ import { routes } from "@/router";
   border-radius: 16px !important;
   background: rgba(255, 255, 255, 0.1);
   width: 100%;
+  max-width: 300px;
 }
 
 .search-input ::v-deep .ant-input::placeholder {
@@ -127,5 +150,22 @@ import { routes } from "@/router";
 
 .header-right p:hover {
   opacity: 0.8;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+  .header-middle {
+    padding: 0 20px;
+  }
+
+  .system-name {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 992px) {
+  .search-wrapper {
+    width: 200px;
+  }
 }
 </style>
