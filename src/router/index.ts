@@ -14,7 +14,7 @@ import PublishDraft from "@/views/PublishDraft.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: "/home",
+    path: "/",
     name: "首页",
     meta: {
       icon: HomeOutlined,

@@ -262,11 +262,11 @@ const orderList = ref<OrderItem[]>([
 
 // 订单状态配置
 const statusConfig = {
-  1: { text: "待支付", color: "orange" },
-  2: { text: "进行中", color: "blue" },
-  3: { text: "已完成", color: "green" },
-  4: { text: "已取消", color: "red" },
-  5: { text: "退款中", color: "gold" },
+  "1": { text: "待支付", color: "orange" },
+  "2": { text: "进行中", color: "blue" },
+  "3": { text: "已完成", color: "green" },
+  "4": { text: "已取消", color: "red" },
+  "5": { text: "退款中", color: "gold" },
 };
 
 // 表格列配置
@@ -343,11 +343,11 @@ const handleReorder = (order: OrderItem) => {
 };
 
 // 辅助方法
-const getStatusText = (status: string) => {
-  return "未知" || statusConfig[status]?.text;
+const getStatusText = (status: never) => {
+  return "未知" || statusConfig[status];
 };
-const getStatusColor = (status: string) => {
-  return "gray" || statusConfig[status]?.color;
+const getStatusColor = (status: never) => {
+  return "gray" || statusConfig[status];
 };
 const genderMap = { male: "男", female: "女" };
 </script>

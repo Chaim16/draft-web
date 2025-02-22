@@ -1,50 +1,140 @@
 <template>
-  <div id="register">
+  <div id="register" class="register-container">
     <a-form
       class="register-form"
       :model="formState"
-      @submit="register"
-      auto-label-width
-      label-align="left"
-      :rules="checkRules"
+      @finish="register"
+      :label-col="{ span: 6 }"
+      :wrapper-col="{ span: 18 }"
+      hide-required-mark="true"
     >
-      <a-form-item label="用户名" name="username">
-        <a-input v-model:value="formState.username" />
+      <a-typography-title :level="3" class="form-title"
+        >用户注册
+      </a-typography-title>
+
+      <a-form-item
+        label="用户名"
+        name="username"
+        :rules="checkRules.username"
+        hasFeedback
+      >
+        <a-input
+          v-model:value="formState.username"
+          placeholder="请输入4-16位用户名"
+          allowClear
+        >
+          <template #prefix>
+            <UserOutlined />
+          </template>
+        </a-input>
       </a-form-item>
 
-      <a-form-item label="昵称" name="nickname">
-        <a-input v-model:value="formState.nickname" />
+      <a-form-item
+        label="昵称"
+        name="nickname"
+        :rules="checkRules.nickname"
+        hasFeedback
+      >
+        <a-input
+          v-model:value="formState.nickname"
+          placeholder="请输入您的昵称"
+          allowClear
+        >
+          <template #prefix>
+            <SmileOutlined />
+          </template>
+        </a-input>
       </a-form-item>
 
-      <a-form-item label="手机号" name="phone">
-        <a-input v-model:value="formState.phone" />
+      <a-form-item
+        label="手机号"
+        name="phone"
+        :rules="checkRules.phone"
+        hasFeedback
+      >
+        <a-input
+          v-model:value="formState.phone"
+          placeholder="11位手机号码"
+          allowClear
+        >
+          <template #prefix>
+            <MobileOutlined />
+          </template>
+        </a-input>
       </a-form-item>
 
-      <a-form-item label="性别" name="gender">
-        <a-select v-model:value="formState.gender">
+      <a-form-item label="性别" name="gender" :rules="checkRules.gender">
+        <a-select
+          v-model:value="formState.gender"
+          placeholder="请选择性别"
+          allowClear
+        >
           <a-select-option value="male">男</a-select-option>
           <a-select-option value="female">女</a-select-option>
         </a-select>
       </a-form-item>
 
-      <a-form-item label="密码" name="password">
-        <a-input-password v-model:value="formState.password" />
+      <a-form-item
+        label="密码"
+        name="password"
+        :rules="checkRules.password"
+        hasFeedback
+      >
+        <a-input-password
+          v-model:value="formState.password"
+          placeholder="至少8位密码"
+          allowClear
+        >
+          <template #prefix>
+            <LockOutlined />
+          </template>
+        </a-input-password>
       </a-form-item>
 
-      <a-form-item label="确认密码" name="confirmPassword">
-        <a-input-password v-model:value="formState.confirmPassword" />
+      <a-form-item
+        label="确认密码"
+        name="confirmPassword"
+        :rules="[
+          ...checkRules.confirmPassword,
+          { validator: validatePassword },
+        ]"
+        hasFeedback
+      >
+        <a-input-password
+          v-model:value="formState.confirmPassword"
+          placeholder="请再次输入密码"
+          allowClear
+        >
+          <template #prefix>
+            <SafetyOutlined />
+          </template>
+        </a-input-password>
       </a-form-item>
 
-      <a-form-item>
-        <a-button type="primary" html-type="submit" style="width: 120px"
-          >注册
+      <a-form-item :wrapper-col="{ offset: 6, span: 18 }">
+        <a-button
+          type="primary"
+          html-type="submit"
+          size="large"
+          class="submit-btn"
+          :loading="submitting"
+        >
+          立即注册
         </a-button>
       </a-form-item>
     </a-form>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref } from "vue";
+import {
+  UserOutlined,
+  LockOutlined,
+  SmileOutlined,
+  MobileOutlined,
+  SafetyOutlined,
+} from "@ant-design/icons-vue";
 
 const formState = ref({
   username: "",
@@ -55,8 +145,12 @@ const formState = ref({
   confirmPassword: "",
 });
 
+// 增强验证规则
 const checkRules = {
-  username: [{ required: true, message: "请输入用户名!" }],
+  username: [
+    { required: true, message: "请输入用户名" },
+    { min: 4, max: 16, message: "用户名长度4-16位" },
+  ],
   nickname: [{ required: true, message: "请输入昵称!" }],
   phone: [{ required: true, message: "请输入手机号!" }],
   gender: [{ required: true, message: "请选择性别!" }],
@@ -64,14 +158,70 @@ const checkRules = {
   confirmPassword: [{ required: true, message: "请确认密码!" }],
 };
 
-const register = () => {
-  console.log(formState);
+const validatePassword = async (_rule: never, value: string) => {
+  if (value !== formState.value.password) {
+    throw new Error("两次输入的密码不一致!");
+  }
+};
+
+// 提交状态
+const submitting = ref(false);
+const register = async () => {
+  // 提交逻辑...
 };
 </script>
 
 <style scoped>
+.register-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: #f0f2f5;
+  /* 修改背景为图片并添加遮罩 */
+  background-image: url("@/assets/login_background.png");
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.register-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+}
+
 .register-form {
+  width: 520px;
   margin: auto;
-  max-width: 480px;
+  padding: 40px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative; /* 确保表单在遮罩层之上 */
+  z-index: 1;
+  margin-top: 100px;
+}
+
+.form-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+
+:deep(.ant-input-affix-wrapper) {
+  padding: 8px 11px;
+}
+
+:deep(.ant-select-selector) {
+  padding: 4px 11px;
 }
 </style>
