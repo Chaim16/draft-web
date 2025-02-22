@@ -13,6 +13,12 @@ const api = {
     const res = await axiosInstance.get("/market/api/v1/user/whoami/");
     return res.data;
   },
+  crawler: async (params: object) => {
+    const res = await axiosInstance.get("/market/api/v1/home/crawler/", {
+      params,
+    });
+    return res.data;
+  },
 };
 
 export default api;

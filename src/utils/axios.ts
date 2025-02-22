@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const baseURL = "http://localhost:8000";
+
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: baseURL,
   timeout: 10000,
 });
 
@@ -18,7 +20,7 @@ export const refreshToken = async () => {
     if (!refreshToken) {
       throw new Error("没有找到 refresh_token");
     }
-    const response = await axios.post("/api/token/refresh/", {
+    const response = await axiosInstance.post("/api/token/refresh/", {
       refresh: refreshToken,
     });
 
@@ -68,3 +70,4 @@ axiosInstance.interceptors.response.use(
 );
 
 export default axiosInstance;
+export { baseURL };

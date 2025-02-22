@@ -6,6 +6,9 @@
     <template v-else-if="route.path.startsWith('/user/register')">
       <LoginLayout />
     </template>
+    <template v-else-if="route.path.startsWith('/static/')">
+      <router-view />
+    </template>
     <template v-else>
       <BasicLayout />
     </template>

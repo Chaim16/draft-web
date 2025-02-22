@@ -42,6 +42,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons-vue";
+import api from "@/api/api";
+import { ApiResponse, baseURL } from "@/utils/axios";
 
 const slides = ref([
   {
@@ -60,6 +62,25 @@ const slides = ref([
     description: "专业创作空间",
   },
 ]);
+
+const getCrawlerData = async () => {
+  slides.value = [];
+  api.crawler({ number: 5 }).then((res: ApiResponse) => {
+    if (res.code === 0) {
+      const images = res.data?.images;
+      for (const item of images) {
+        slides.value.push({
+          image: baseURL + item.image_path,
+          title: item.title,
+          description: item.description,
+        });
+      }
+    }
+    slides.value.push();
+  });
+};
+
+getCrawlerData();
 
 const activeIndex = ref(0);
 const isPaused = ref(false);
