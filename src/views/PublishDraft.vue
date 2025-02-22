@@ -8,24 +8,77 @@
       class="publish-form"
       :model="formState"
       @submit="publish"
-      auto-label-width
-      label-align="left"
-      :rules="checkRules"
+      :label-col="{ span: 5 }"
+      :wrapper-col="{ span: 19 }"
+      hide-required-mark="true"
     >
-      <a-form-item label="画稿标题" name="title">
-        <a-input v-model:value="formState.title" />
+      <a-typography-title :level="3" class="form-title"
+        >发布作品
+      </a-typography-title>
+
+      <a-form-item
+        label="画稿标题"
+        name="title"
+        :rules="checkRules.title"
+        hasFeedback
+      >
+        <a-input
+          v-model:value="formState.title"
+          placeholder="请输入作品标题"
+          allowClear
+        >
+          <template #prefix>
+            <EditOutlined />
+          </template>
+        </a-input>
       </a-form-item>
 
-      <a-form-item label="画稿描述" name="description">
-        <a-textarea v-model:value="formState.description" :rows="4" />
+      <a-form-item
+        label="画稿描述"
+        name="description"
+        :rules="checkRules.description"
+      >
+        <a-textarea
+          v-model:value="formState.description"
+          :rows="4"
+          placeholder="请输入作品描述（最多500字）"
+          allowClear
+          show-count
+          :maxlength="500"
+        >
+          <template #prefix>
+            <FileTextOutlined />
+          </template>
+        </a-textarea>
       </a-form-item>
 
-      <a-form-item label="价格" name="price">
-        <a-input-number v-model:value="formState.price" :min="0" />
+      <a-form-item
+        label="价格"
+        name="price"
+        :rules="checkRules.price"
+        hasFeedback
+      >
+        <a-input-number
+          v-model:value="formState.price"
+          :min="0"
+          placeholder="请输入金额"
+          class="full-width"
+        >
+          <template #prefix>
+            <DollarOutlined />
+          </template>
+        </a-input-number>
       </a-form-item>
 
-      <a-form-item label="分类" name="category">
-        <a-select v-model:value="formState.category">
+      <a-form-item label="分类" name="category" :rules="checkRules.category">
+        <a-select
+          v-model:value="formState.category"
+          placeholder="请选择作品分类"
+          allowClear
+        >
+          <template #prefix>
+            <AppstoreOutlined />
+          </template>
           <a-select-option value="illustration">插画</a-select-option>
           <a-select-option value="concept">概念设计</a-select-option>
           <a-select-option value="character">角色设计</a-select-option>
@@ -33,23 +86,32 @@
         </a-select>
       </a-form-item>
 
-      <a-form-item label="画稿图片" name="image">
+      <a-form-item label="画稿图片" name="image" :rules="checkRules.image">
         <a-upload
           v-model:file-list="fileList"
           list-type="picture-card"
           :before-upload="beforeUpload"
           @preview="handlePreview"
+          accept="image/*"
+          :max-count="1"
         >
-          <div v-if="fileList.length < 1">
+          <div class="upload-area">
             <plus-outlined />
-            <div style="margin-top: 8px">上传</div>
+            <div class="upload-text">点击上传</div>
+            <div class="upload-hint">支持JPG/PNG格式，小于5MB</div>
           </div>
         </a-upload>
       </a-form-item>
 
-      <a-form-item>
-        <a-button type="primary" html-type="submit" style="width: 120px"
-          >发布
+      <a-form-item :wrapper-col="{ offset: 5, span: 19 }">
+        <a-button
+          type="primary"
+          html-type="submit"
+          size="large"
+          class="submit-btn"
+          :loading="submitting"
+        >
+          立即发布
         </a-button>
       </a-form-item>
     </a-form>
@@ -69,6 +131,13 @@ import { ref } from "vue";
 import { PlusOutlined } from "@ant-design/icons-vue";
 import { computed } from "vue";
 import type { UploadFile } from "ant-design-vue";
+// 新增图标引入
+import {
+  EditOutlined,
+  FileTextOutlined,
+  DollarOutlined,
+  AppstoreOutlined,
+} from "@ant-design/icons-vue";
 
 const formState = ref({
   title: "",
@@ -83,12 +152,24 @@ const previewImage = ref("");
 const backgroundImageUrl = ref("");
 
 const checkRules = {
-  title: [{ required: true, message: "请输入画稿标题!" }],
-  description: [{ required: true, message: "请输入画稿描述!" }],
-  price: [{ required: true, message: "请输入价格!" }],
+  title: [
+    { required: true, message: "请输入画稿标题" },
+    { min: 4, max: 30, message: "标题长度4-30个字符" },
+  ],
+  description: [
+    { required: true, message: "请输入画稿描述" },
+    { max: 500, message: "描述内容不超过500字" },
+  ],
+  price: [
+    { required: true, message: "请输入价格" },
+    { type: "number", min: 0, message: "价格不能小于0" },
+  ],
   category: [{ required: true, message: "请选择分类!" }],
   image: [{ required: true, message: "请上传画稿图片!" }],
 };
+
+// 提交状态
+const submitting = ref(false);
 
 const beforeUpload = (file: UploadFile) => {
   fileList.value = [file];
@@ -164,8 +245,8 @@ const publish = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.1);
   z-index: 0;
+  background: rgba(255, 255, 255, 0.92);
 }
 
 /* 提升表单可见性 */
@@ -178,6 +259,51 @@ const publish = () => {
 
 /* 调整阴影增强对比度 */
 .publish-form {
+  margin: 40px auto;
+  padding: 40px;
+  max-width: 720px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 新增样式 */
+.form-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.upload-area {
+  padding: 12px;
+  text-align: center;
+}
+
+.upload-text {
+  margin-top: 8px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.upload-hint {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+:deep(.ant-upload-list-item) {
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+:deep(.ant-upload-list-item:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 </style>

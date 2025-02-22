@@ -124,20 +124,73 @@ const handleMenuClick = (item: object) => {
   background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-/* 新增搜索框容器 */
+/* 更新后的搜索框样式 */
 .search-wrapper {
-  margin-left: auto; /* 关键属性 */
+  margin-left: auto;
   display: flex;
   align-items: center;
   width: 300px;
 }
 
-/* 优化搜索框样式 */
 .search-input ::v-deep .ant-input {
-  border-radius: 16px !important;
-  background: rgba(255, 255, 255, 0.1);
-  width: 100%;
-  max-width: 300px;
+  border-radius: 20px !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  padding: 8px 36px 8px 16px;
+  color: white !important;
+  transition: all 0.3s ease;
+  height: 36px;
+}
+
+.search-input ::v-deep .ant-input:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.search-input ::v-deep .ant-input:focus {
+  background: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
+}
+
+.search-input ::v-deep .ant-input::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-weight: 300;
+}
+
+.search-input ::v-deep .ant-input-search-button {
+  right: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background: transparent !important;
+  border: none !important;
+  color: white !important;
+}
+
+.search-input ::v-deep .ant-input-search-button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.search-input ::v-deep .anticon-search {
+  font-size: 16px;
+}
+
+/* 响应式调整 */
+@media (max-width: 992px) {
+  .search-wrapper {
+    width: 200px;
+  }
+
+  .search-input ::v-deep .ant-input {
+    padding-right: 30px;
+    height: 32px;
+  }
+
+  .search-input ::v-deep .ant-input-search-button {
+    right: 2px;
+    width: 28px;
+    height: 28px;
+  }
 }
 
 .search-input ::v-deep .ant-input::placeholder {
