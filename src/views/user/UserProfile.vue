@@ -128,13 +128,6 @@
         <a-radio-button :value="200">200元</a-radio-button>
         <a-radio-button :value="500">500元</a-radio-button>
       </a-radio-group>
-      <a-input-number
-        v-model:value="customAmount"
-        :min="10"
-        :max="10000"
-        placeholder="输入自定义金额"
-        class="custom-amount"
-      />
     </a-modal>
   </div>
 </template>

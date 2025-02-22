@@ -69,6 +69,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { UserOutlined, LockOutlined } from "@ant-design/icons-vue";
+import api from "@/api/api";
+import { message } from "ant-design-vue";
+import { useRouter } from "vue-router";
+import { ApiResponse } from "@/utils/axios";
+import { useStore } from "vuex";
 
 const formState = ref({
   username: "",
@@ -80,9 +85,29 @@ const checkRules = {
   password: [{ required: true, message: "请输入密码" }],
 };
 
+const store = useStore(); // 获取 Vuex store 实例
+const router = useRouter();
+
 const submitting = ref(false);
 const login = () => {
-  console.log(formState);
+  const params = {
+    username: formState.value.username,
+    password: formState.value.password,
+  };
+  submitting.value = true;
+  try {
+    api.userLogin(params).then((res: ApiResponse) => {
+      localStorage.setItem("access_token", res.access);
+      localStorage.setItem("refresh_token", res.refresh);
+      store.dispatch("user/getLoginUser");
+      router.push("/");
+      message.success("登录成功");
+    });
+  } catch (e) {
+    message.error("登录失败");
+  } finally {
+    submitting.value = false;
+  }
 };
 </script>
 

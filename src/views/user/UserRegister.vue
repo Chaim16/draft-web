@@ -135,6 +135,10 @@ import {
   MobileOutlined,
   SafetyOutlined,
 } from "@ant-design/icons-vue";
+import api from "@/api/api";
+import { useRouter } from "vue-router";
+import { message } from "ant-design-vue";
+import { ApiResponse } from "@/utils/axios";
 
 const formState = ref({
   username: "",
@@ -164,10 +168,39 @@ const validatePassword = async (_rule: never, value: string) => {
   }
 };
 
+const router = useRouter();
+
 // 提交状态
 const submitting = ref(false);
 const register = async () => {
-  // 提交逻辑...
+  const params = {
+    username: formState.value.username,
+    password: formState.value.password,
+    confirm_password: formState.value.confirmPassword,
+    nickname: formState.value.nickname,
+    phone: formState.value.phone,
+    gender: formState.value.gender == "male" ? 0 : 1,
+  };
+  submitting.value = true;
+  try {
+    api
+      .userRegister(params)
+      .then((res: ApiResponse) => {
+        if (res.code == 0) {
+          message.success("注册成功!");
+          router.push("/user/login");
+        } else {
+          message.error(res.message);
+        }
+      })
+      .catch(() => {
+        message.error("注册失败!");
+      });
+  } catch (e) {
+    message.error("注册失败!");
+  } finally {
+    submitting.value = false;
+  }
 };
 </script>
 
