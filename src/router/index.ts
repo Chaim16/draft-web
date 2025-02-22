@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import MarketCenter from "../views/MarketCenter.vue";
 import {
   HomeOutlined,
   SwapOutlined,
@@ -8,6 +8,9 @@ import {
 } from "@ant-design/icons-vue";
 import UserRegister from "@/views/user/UserRegister.vue";
 import UserLogin from "@/views/user/UserLogin.vue";
+import HomeView from "@/views/HomeView.vue";
+import UserProfile from "@/views/user/UserProfile.vue";
+import PublishDraft from "@/views/PublishDraft.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -24,7 +27,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       icon: SwapOutlined,
     },
-    component: HomeView,
+    component: MarketCenter,
   },
   {
     path: "/profile",
@@ -32,7 +35,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       icon: UserOutlined,
     },
-    component: HomeView,
+    component: UserProfile,
   },
   {
     path: "/release",
@@ -40,7 +43,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       icon: PlusOutlined,
     },
-    component: HomeView,
+    component: PublishDraft,
   },
   {
     path: "/user/register",

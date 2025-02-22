@@ -32,6 +32,7 @@ export default defineComponent({
 #basicLayout .content {
   padding: 20px;
   background: linear-gradient(to right, #bbb, #fff);
+  padding-bottom: 80px; /* 大于等于页脚高度 */
 }
 
 #basicLayout .footer {
