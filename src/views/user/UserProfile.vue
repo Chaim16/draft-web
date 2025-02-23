@@ -13,11 +13,11 @@
           >{{ userInfo.phone || "未绑定" }}
         </a-descriptions-item>
         <a-descriptions-item label="性别"
-          >{{ genderMap[userInfo.gender] }}
+          >{{ GENDER_MAP[userInfo.gender] }}
         </a-descriptions-item>
         <a-descriptions-item label="角色">
           <a-tag :color="userInfo.role === '设计师' ? 'green' : 'blue'">
-            {{ userInfo.role }}
+            {{ ROLE_MAP[userInfo.role] }}
           </a-tag>
         </a-descriptions-item>
         <a-descriptions-item label="账户余额">
@@ -36,7 +36,10 @@
           修改信息
         </a-button>
 
-        <a-button v-if="userInfo.role !== '设计师'" @click="applyDesigner">
+        <a-button
+          v-if="userInfo.role !== 'designer'"
+          @click="showApplicationModal"
+        >
           <template #icon>
             <UserAddOutlined />
           </template>
@@ -106,7 +109,10 @@
         <a-form-item label="昵称" required>
           <a-input v-model:value="editForm.nickname" />
         </a-form-item>
-        <a-form-item label="性别">
+        <a-form-item label="手机号" required>
+          <a-input v-model:value="editForm.phone" />
+        </a-form-item>
+        <a-form-item label="性别" required>
           <a-select v-model:value="editForm.gender">
             <a-select-option value="male">男</a-select-option>
             <a-select-option value="female">女</a-select-option>
@@ -129,26 +135,63 @@
         <a-radio-button :value="500">500元</a-radio-button>
       </a-radio-group>
     </a-modal>
+
+    <!-- 申请设计师模态框 -->
+    <a-modal
+      v-model:visible="applicationVisible"
+      :title="applicationTitle"
+      @ok="handleApplicationSubmit"
+      @cancel="handleApplicationCancel"
+      :destroyOnClose="true"
+    >
+      <div v-if="applicationInfo.status === 'wait_apply'">
+        <a-form :model="applicationForm" layout="vertical">
+          <a-form-item label="申请理由" required>
+            <a-textarea v-model:value="applicationForm.reason" />
+          </a-form-item>
+        </a-form>
+      </div>
+      <div v-else>
+        <p>
+          审批状态：
+          <a-tag :color="applicationInfo.status === 'pass' ? 'green' : 'blue'">
+            {{ DESIGNER_APPLICATION_STATUS_MAP[applicationInfo.status] }}
+          </a-tag>
+        </p>
+        <a-divider />
+        <p>申请时间： {{ formatTimestamp(applicationInfo.createTime) }}</p>
+        <p>申请理由： {{ applicationInfo.reason }}</p>
+        <a-divider />
+        <p>
+          审批时间：
+          {{
+            applicationInfo.approvalTime
+              ? formatTimestamp(applicationInfo.approvalTime)
+              : ""
+          }}
+        </p>
+        <p>审批意见： {{ applicationInfo.approvalOpinions }}</p>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import {
   EditOutlined,
   UserAddOutlined,
   WalletOutlined,
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
-
-interface UserInfo {
-  username: string;
-  nickname: string;
-  phone?: string;
-  gender: string;
-  role: string;
-  balance: number;
-}
+import api from "@/api/api";
+import {
+  GENDER_MAP,
+  ROLE_MAP,
+  DESIGNER_APPLICATION_STATUS_MAP,
+} from "@/utils/constant";
+import { ApiResponse } from "@/utils/axios";
+import formatTimestamp from "@/utils/public";
 
 interface OrderItem {
   orderNo: string;
@@ -160,14 +203,30 @@ interface OrderItem {
 }
 
 // 用户数据
-const userInfo = reactive<UserInfo>({
-  username: "artlover2024",
-  nickname: "艺术爱好者",
-  phone: "138****0000",
-  gender: "male",
-  role: "普通用户",
-  balance: 2688.5,
+const userInfo = reactive({
+  username: "",
+  nickname: "",
+  phone: "",
+  gender: "",
+  role: "",
+  balance: 0,
 });
+
+const getUserInfo = () => {
+  api.userDetail().then((res) => {
+    if (res.code === 0) {
+      userInfo.username = res.data.username;
+      userInfo.nickname = res.data.nickname;
+      userInfo.phone = res.data.phone;
+      userInfo.gender = res.data.gender === 1 ? "male" : "female";
+      userInfo.role = res.data.role;
+      userInfo.balance = res.data.balance;
+    } else {
+      message.error(res.message);
+    }
+  });
+};
+getUserInfo();
 
 // 订单数据
 const orderList = ref<OrderItem[]>([
@@ -286,19 +345,36 @@ const editVisible = ref(false);
 const editForm = reactive({
   nickname: "",
   gender: "",
+  phone: "",
 });
 
 const showEditModal = () => {
   editForm.nickname = userInfo.nickname;
   editForm.gender = userInfo.gender;
+  editForm.phone = userInfo.phone;
   editVisible.value = true;
 };
 
 const handleEditSubmit = () => {
-  userInfo.nickname = editForm.nickname;
-  userInfo.gender = editForm.gender;
-  editVisible.value = false;
-  message.success("个人信息更新成功");
+  const params = {
+    nickname: editForm.nickname,
+    gender: editForm.gender == "male" ? 1 : 0,
+    phone: editForm.phone,
+  };
+  try {
+    api.userModify(params).then((res: ApiResponse) => {
+      if (res.code === 0) {
+        message.success("个人信息更新成功");
+        getUserInfo();
+      } else {
+        message.error(res.message);
+      }
+    });
+  } catch (e) {
+    message.error("更新失败!");
+  } finally {
+    editVisible.value = false;
+  }
 };
 
 // 充值功能
@@ -342,7 +418,70 @@ const getStatusText = (status: never) => {
 const getStatusColor = (status: never) => {
   return "gray" || statusConfig[status];
 };
-const genderMap = { male: "男", female: "女" };
+
+// 申请设计师功能
+const applicationVisible = ref(false);
+const applicationForm = reactive({
+  reason: "",
+});
+
+const applicationInfo = reactive({
+  status: "wait_apply",
+  reason: "",
+  createTime: "",
+  approvalOpinions: "",
+  approvalTime: "",
+});
+
+const showApplicationModal = () => {
+  // 判断用户是否已经提交过申请
+  checkApplicationStatus();
+  applicationVisible.value = true;
+};
+
+const checkApplicationStatus = () => {
+  api.designerApplicationRecord().then((res: ApiResponse) => {
+    if (res.code !== 0) {
+      message.error(res.message);
+    } else {
+      console.log(res);
+      if (res.data) {
+        const record = res.data;
+        applicationInfo.status = record.status;
+        applicationInfo.reason = record.reason;
+        applicationInfo.createTime = record.create_time;
+        applicationInfo.approvalOpinions = record.approval_opinions;
+        applicationInfo.approvalTime = record.approval_time;
+      } else {
+        applicationInfo.status = "wait_apply"; // 如果没有申请记录，则显示为待申请状态
+      }
+    }
+  });
+};
+
+const handleApplicationSubmit = () => {
+  if (applicationInfo.status === "wait_apply") {
+    const params = {
+      reason: applicationForm.reason,
+    };
+    api.applyAsDesigner(params).then((res: ApiResponse) => {
+      if (res.code === 0) {
+        message.success("提交成功，请等待审批");
+      } else {
+        message.error(res.message);
+      }
+    });
+  }
+  applicationVisible.value = false;
+};
+
+const handleApplicationCancel = () => {
+  applicationVisible.value = false;
+};
+
+const applicationTitle = computed(() => {
+  return applicationInfo.status === "wait_apply" ? "申请设计师" : "审批信息";
+});
 </script>
 
 <style scoped lang="scss">
