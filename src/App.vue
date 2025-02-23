@@ -26,7 +26,7 @@ const route = useRoute();
 const store = useStore();
 
 onMounted(() => {
-  // store.dispatch("user/initialize");
+  store.dispatch("user/initialize");
 });
 </script>
 

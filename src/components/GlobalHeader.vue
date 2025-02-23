@@ -32,9 +32,17 @@
       </div>
     </div>
     <div class="header-right">
-      <div class="login-or-register" @click="router.push('/user/login')">
-        {{ store.state.user?.loginUser?.username ?? "未登录" }}
-      </div>
+      <a-popconfirm
+        title="确定要退出登录吗？"
+        ok-text="确认"
+        cancel-text="取消"
+        @confirm="logout"
+        @cancel="cancel"
+      >
+        <div class="login-or-register">
+          {{ store.state.user?.loginUser?.username ?? "未登录" }}
+        </div>
+      </a-popconfirm>
     </div>
   </div>
 </template>
@@ -67,6 +75,11 @@ const handleMenuClick = (item: object) => {
   router.push({
     path: item.path,
   });
+};
+
+const logout = () => {
+  store.dispatch("user/logout");
+  router.push("/user/login");
 };
 </script>
 
