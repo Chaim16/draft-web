@@ -40,6 +40,10 @@ const api = {
     );
     return res.data;
   },
+  walletRecharge: async (body: object) => {
+    const res = await axiosInstance.post("/market/api/v1/user/recharge/", body);
+    return res.data;
+  },
 };
 
 export default api;

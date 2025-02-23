@@ -380,17 +380,27 @@ const handleEditSubmit = () => {
 // 充值功能
 const rechargeVisible = ref(false);
 const selectedAmount = ref(50);
-const customAmount = ref<number | null>(null);
 
 const showRechargeModal = () => {
   rechargeVisible.value = true;
 };
 
 const handleRecharge = () => {
-  const amount = customAmount.value || selectedAmount.value;
-  userInfo.balance += amount;
+  const amount = selectedAmount.value;
+  const params = {
+    amount: amount,
+  };
+  api.walletRecharge(params).then((res: ApiResponse) => {
+    if (res.code === 0) {
+      const url = res.data?.url;
+      console.log("url:", url);
+      // 打开url
+      window.open(url, "_blank");
+    } else {
+      message.error(res.message);
+    }
+  });
   rechargeVisible.value = false;
-  message.success(`成功充值 ¥${amount.toFixed(2)}`);
 };
 
 // 订单操作
