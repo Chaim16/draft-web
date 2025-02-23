@@ -394,6 +394,7 @@ const handleRecharge = () => {
     if (res.code === 0) {
       const url = res.data?.url;
       console.log("url:", url);
+      message.success("请支付后刷新页面查看余额");
       // 打开url
       window.open(url, "_blank");
     } else {
