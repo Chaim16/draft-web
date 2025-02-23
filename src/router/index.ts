@@ -11,6 +11,7 @@ import UserLogin from "@/views/user/UserLogin.vue";
 import HomeView from "@/views/HomeView.vue";
 import UserProfile from "@/views/user/UserProfile.vue";
 import PublishDraft from "@/views/PublishDraft.vue";
+import { ACCESS_ENUM } from "@/utils/constant";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -18,6 +19,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "首页",
     meta: {
       icon: HomeOutlined,
+      access: ACCESS_ENUM.UNKNOWN,
     },
     component: HomeView,
   },
@@ -26,6 +28,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "画稿中心",
     meta: {
       icon: SwapOutlined,
+      access: ACCESS_ENUM.UNKNOWN,
     },
     component: MarketCenter,
   },
@@ -34,6 +37,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "个人中心",
     meta: {
       icon: UserOutlined,
+      access: ACCESS_ENUM.GENERAL,
     },
     component: UserProfile,
   },
@@ -42,6 +46,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "发布画稿",
     meta: {
       icon: PlusOutlined,
+      access: ACCESS_ENUM.DESIGNER,
     },
     component: PublishDraft,
   },
@@ -51,6 +56,7 @@ const routes: Array<RouteRecordRaw> = [
     component: UserRegister,
     meta: {
       hideInMenu: true,
+      access: ACCESS_ENUM.UNKNOWN,
     },
   },
   {
@@ -59,6 +65,7 @@ const routes: Array<RouteRecordRaw> = [
     component: UserLogin,
     meta: {
       hideInMenu: true,
+      access: ACCESS_ENUM.UNKNOWN,
     },
   },
 ];

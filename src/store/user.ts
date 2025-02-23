@@ -1,6 +1,6 @@
 import { StoreOptions } from "vuex";
 import api from "@/api/api";
-import { message } from "ant-design-vue";
+import router from "@/router"; // 直接导入router实例
 
 export default {
   namespaced: true,
@@ -11,11 +11,19 @@ export default {
       username: "未登录",
       role: "unknown",
     },
-    isAuthenticated: false, // 用于标识用户是否已登录
+    isAuthenticated: localStorage.getItem("isAuthenticated") === "true", // 用于标识用户是否已登录
   }),
 
   // actions：执行异步操作，并且触发mutation的更改，（调用mutation）
   actions: {
+    // 该方法应在应用启动时被调用，确保状态同步
+    async initialize() {
+      if (localStorage.getItem("isAuthenticated") === "true") {
+        // 如果已登录，尝试从后端获取用户信息
+        await this.dispatch("user/getLoginUser");
+      }
+    },
+
     async getLoginUser({ commit }) {
       try {
         const res = await api.whoami();
@@ -29,8 +37,8 @@ export default {
           localStorage.setItem("isAuthenticated", "true");
         }
       } catch (e) {
-        message.error("获取用户信息失败");
         console.error("获取用户信息失败", e);
+        router.push("/user/login");
       }
     },
 

@@ -17,11 +17,17 @@
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-
-const route = useRoute();
-
+import { onMounted } from "vue";
 import BasicLayout from "@/layouts/BasicLayout.vue";
 import LoginLayout from "@/layouts/LoginLayout.vue";
+import { useStore } from "vuex";
+
+const route = useRoute();
+const store = useStore();
+
+onMounted(() => {
+  // store.dispatch("user/initialize");
+});
 </script>
 
 <style>

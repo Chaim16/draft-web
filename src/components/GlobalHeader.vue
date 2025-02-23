@@ -5,7 +5,11 @@
       <span class="system-name">在线画稿交易平台</span>
     </div>
     <div class="header-middle">
-      <a-menu mode="horizontal" :selected-keys="selectedKeys">
+      <a-menu
+        mode="horizontal"
+        :selected-keys="selectedKeys"
+        :inlineCollapsed="false"
+      >
         <a-menu-item
           v-for="item in filteredRoutes"
           :key="item.path"
@@ -41,6 +45,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useRoute } from "vue-router";
 import { computed } from "vue";
+import checkAccess from "@/utils/permission";
 
 const route = useRoute();
 const selectedKeys = computed(() => [route.path]);
@@ -50,11 +55,12 @@ const store = useStore();
 
 // 过滤有效菜单项
 const filteredRoutes = computed(() => {
-  return routes.filter(
-    (route) =>
-      route.name && // 必须有名称
-      !route.meta?.hideInMenu // 未标记隐藏
-  );
+  return routes.filter((item) => {
+    if (item.meta?.hideInMenu) {
+      return false;
+    }
+    return checkAccess(store.state.user?.loginUser, item.meta?.access);
+  });
 });
 
 const handleMenuClick = (item: object) => {

@@ -17,7 +17,7 @@ export interface ApiResponse {
 export const refreshToken = async () => {
   try {
     const refreshToken = localStorage.getItem("refresh_token");
-    if (!refreshToken) {
+    if (!refreshToken || refreshToken === "undefined") {
       throw new Error("没有找到 refresh_token");
     }
     const response = await axiosInstance.post("/api/token/refresh/", {
@@ -30,7 +30,10 @@ export const refreshToken = async () => {
     return response.data;
   } catch (error) {
     console.error("刷新 Token 失败:", error);
-    throw error;
+    // 如果 refresh_token 不存在或者刷新失败，清除 token 并跳转到登录页
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    window.location.href = "/user/login";
   }
 };
 
@@ -63,6 +66,7 @@ axiosInstance.interceptors.response.use(
         return axios(originalRequest);
       } catch (refreshError) {
         console.error("刷新 Token 失败:", refreshError);
+        window.location.href = "/user/login";
       }
     }
     return Promise.reject(error);
