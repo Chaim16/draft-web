@@ -37,7 +37,7 @@
         </a-button>
 
         <a-button
-          v-if="userInfo.role !== 'designer'"
+          v-if="userInfo.role === 'general'"
           @click="showApplicationModal"
         >
           <template #icon>
@@ -61,38 +61,44 @@
         :columns="orderColumns"
         :data-source="orderList"
         :pagination="{ pageSize: 8 }"
-        row-key="orderNo"
+        row-key="orderUuid"
       >
-        <template #status="{ text }">
-          <a-tag :color="getStatusColor(text)">
-            {{ getStatusText(text) }}
-          </a-tag>
-        </template>
-
-        <template #artworkId="{ text }">
-          <router-link :to="`/artwork/${text}`" class="artwork-link">
-            {{ text }}
-          </router-link>
-        </template>
-
-        <template #action="{ record }">
-          <a-space>
-            <a-button
-              size="small"
-              @click="handleCancelOrder(record)"
-              :disabled="record.status !== 1"
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'status'">
+            <a-tag
+              :color="
+                record.status === 'paid'
+                  ? 'green'
+                  : record.status === 'pay_failed'
+                  ? 'red'
+                  : 'blue'
+              "
             >
-              {{ record.status === 1 ? "取消订单" : "申请退款" }}
-            </a-button>
+              {{ ORDER_STATUS_MAP[record.status] }}
+            </a-tag>
+          </template>
+          <template v-else-if="column.key === 'createTime'">
+            {{ formatTimestamp(record.createTime) }}
+          </template>
+          <template v-else-if="column.key === 'operate'">
+            <a-space>
+              <a-popconfirm
+                title="确定要支付吗？"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="handleCreateOrder(record)"
+                :disabled="record.status !== 'pending'"
+              >
+                <a-button size="small" :disabled="record.status !== 'pending'">
+                  确认支付
+                </a-button>
+              </a-popconfirm>
 
-            <a-button type="link" danger @click="handleDeleteOrder(record)">
-              删除
-            </a-button>
-
-            <a-button type="primary" ghost @click="handleReorder(record)">
-              再来一单
-            </a-button>
-          </a-space>
+              <a-button danger size="small" @click="handleDeleteOrder(record)">
+                删除
+              </a-button>
+            </a-space>
+          </template>
         </template>
       </a-table>
     </a-card>
@@ -189,18 +195,10 @@ import {
   GENDER_MAP,
   ROLE_MAP,
   DESIGNER_APPLICATION_STATUS_MAP,
+  ORDER_STATUS_MAP,
 } from "@/utils/constant";
 import { ApiResponse } from "@/utils/axios";
 import formatTimestamp from "@/utils/public";
-
-interface OrderItem {
-  orderNo: string;
-  artworkId: string;
-  date: string;
-  amount: number;
-  status: number;
-  designer: string;
-}
 
 // 用户数据
 const userInfo = reactive({
@@ -229,115 +227,54 @@ const getUserInfo = () => {
 getUserInfo();
 
 // 订单数据
-const orderList = ref<OrderItem[]>([
-  {
-    orderNo: "20240320001",
-    artworkId: "ART-2024-001",
-    date: "2024-03-20 14:30",
-    amount: 599.0,
-    status: 1,
-    designer: "设计师张三",
-  },
-  {
-    orderNo: "20240320001",
-    artworkId: "ART-2024-001",
-    date: "2024-03-20 14:30",
-    amount: 599.0,
-    status: 1,
-    designer: "设计师张三",
-  },
-  {
-    orderNo: "20240320001",
-    artworkId: "ART-2024-001",
-    date: "2024-03-20 14:30",
-    amount: 599.0,
-    status: 1,
-    designer: "设计师张三",
-  },
-  {
-    orderNo: "20240320001",
-    artworkId: "ART-2024-001",
-    date: "2024-03-20 14:30",
-    amount: 599.0,
-    status: 1,
-    designer: "设计师张三",
-  },
-  {
-    orderNo: "20240320001",
-    artworkId: "ART-2024-001",
-    date: "2024-03-20 14:30",
-    amount: 599.0,
-    status: 1,
-    designer: "设计师张三",
-  },
-  {
-    orderNo: "20240320001",
-    artworkId: "ART-2024-001",
-    date: "2024-03-20 14:30",
-    amount: 599.0,
-    status: 1,
-    designer: "设计师张三",
-  },
-  {
-    orderNo: "20240320001",
-    artworkId: "ART-2024-001",
-    date: "2024-03-20 14:30",
-    amount: 599.0,
-    status: 1,
-    designer: "设计师张三",
-  },
-  {
-    orderNo: "20240320001",
-    artworkId: "ART-2024-001",
-    date: "2024-03-20 14:30",
-    amount: 599.0,
-    status: 1,
-    designer: "设计师张三",
-  },
-  {
-    orderNo: "20240320001",
-    artworkId: "ART-2024-001",
-    date: "2024-03-20 14:30",
-    amount: 599.0,
-    status: 1,
-    designer: "设计师张三",
-  },
-  {
-    orderNo: "20240319002",
-    artworkId: "ART-2024-045",
-    date: "2024-03-19 09:15",
-    amount: 1299.0,
-    status: 3,
-    designer: "设计师李四",
-  },
-]);
+const orderList = ref<[]>([]);
 
-// 订单状态配置
-const statusConfig = {
-  "1": { text: "待支付", color: "orange" },
-  "2": { text: "进行中", color: "blue" },
-  "3": { text: "已完成", color: "green" },
-  "4": { text: "已取消", color: "red" },
-  "5": { text: "退款中", color: "gold" },
+const getOrderList = () => {
+  api.orderList({}).then((res: ApiResponse) => {
+    if (res.code === 0) {
+      orderList.value = res.data?.list.map((item) => {
+        item.orderUuid = item.order_uuid;
+        item.draftTitle = item.draft_title;
+        item.createTime = item.create_time;
+        return item;
+      });
+    } else {
+      message.error(res.message);
+    }
+  });
 };
+getOrderList();
 
 // 表格列配置
 const orderColumns = [
-  { title: "订单号", dataIndex: "orderNo", width: 180 },
+  { title: "订单号", key: "orderUuid", dataIndex: "orderUuid", width: 180 },
   {
-    title: "画稿ID",
-    dataIndex: "artworkId",
-    slots: { customRender: "artworkId" },
+    title: "画稿标题",
+    key: "draftTitle",
+    dataIndex: "draftTitle",
   },
   {
     title: "下单时间",
-    dataIndex: "date",
-    sorter: (a: OrderItem, b: OrderItem) =>
-      new Date(a.date).getTime() - new Date(b.date).getTime(),
+    key: "createTime",
+    dataIndex: "createTime",
   },
-  { title: "金额（元）", dataIndex: "amount", align: "right" },
-  { title: "状态", dataIndex: "status", slots: { customRender: "status" } },
-  { title: "操作", slots: { customRender: "action" }, width: 240 },
+  { title: "金额（元）", key: "amount", dataIndex: "amount" },
+  {
+    title: "状态",
+    key: "status",
+    dataIndex: "status",
+  },
+  {
+    title: "设计师",
+    key: "designer",
+    dataIndex: "designer",
+  },
+  {
+    title: "操作",
+    key: "operate",
+    dataIndex: "operate",
+    width: 240,
+  },
 ];
 
 // 编辑功能
@@ -404,30 +341,24 @@ const handleRecharge = () => {
   rechargeVisible.value = false;
 };
 
-// 订单操作
-const handleCancelOrder = (order: OrderItem) => {
-  message.loading("正在处理...", 1).then(() => {
-    order.status = 4;
-    message.success("订单已取消");
+const handleCreateOrder = (order: object) => {
+  const params = {
+    order_id: order.id,
+  };
+  api.orderPay(params).then((res) => {
+    if (res.code === 0) {
+      message.success("支付成功");
+      getOrderList();
+      getUserInfo();
+    } else {
+      message.error(res.message);
+    }
   });
 };
 
-const handleDeleteOrder = (order: OrderItem) => {
-  const index = orderList.value.findIndex((o) => o.orderNo === order.orderNo);
-  orderList.value.splice(index, 1);
+const handleDeleteOrder = (order: object) => {
+  console.log(order);
   message.success("订单已删除");
-};
-
-const handleReorder = (order: OrderItem) => {
-  message.info(`已重新下单画稿：${order.artworkId}`);
-};
-
-// 辅助方法
-const getStatusText = (status: never) => {
-  return "未知" || statusConfig[status];
-};
-const getStatusColor = (status: never) => {
-  return "gray" || statusConfig[status];
 };
 
 // 申请设计师功能

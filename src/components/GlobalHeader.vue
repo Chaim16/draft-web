@@ -25,9 +25,11 @@
       </a-menu>
       <div class="search-wrapper">
         <a-input-search
+          v-model:value="searchKeyword"
           placeholder="搜索"
           style="width: 200px"
           class="search-input"
+          @search="handleSearch"
         />
       </div>
     </div>
@@ -52,8 +54,9 @@ import { routes } from "@/router";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useRoute } from "vue-router";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import checkAccess from "@/utils/permission";
+import { message } from "ant-design-vue";
 
 const route = useRoute();
 const selectedKeys = computed(() => [route.path]);
@@ -74,6 +77,26 @@ const filteredRoutes = computed(() => {
 const handleMenuClick = (item: object) => {
   router.push({
     path: item.path,
+  });
+};
+
+const searchKeyword = ref("");
+// 搜索处理函数
+const handleSearch = (value: string) => {
+  if (value.trim() === "") {
+    message.warning("请输入搜索关键字");
+    return;
+  }
+  performSearch(value);
+};
+
+const performSearch = (keyword: string) => {
+  // 跳转到画稿中心页面，并把关键字作为参数传递
+  router.push({
+    path: "/market",
+    query: {
+      keyword: keyword,
+    },
   });
 };
 

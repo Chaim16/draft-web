@@ -1,11 +1,11 @@
 <template>
   <div id="container">
-    <a-card title="用户列表" bordered class="user-card">
+    <a-card title="用户列表" bordered class="order-card">
       <a-table
         :dataSource="userList"
         :columns="columns"
         :pagination="pagination"
-        class="user-table"
+        class="order-table"
         rowKey="id"
       >
         <template #bodyCell="{ column, record }">
@@ -87,11 +87,11 @@ const deleteUser = () => {
   margin-left: 15%;
 }
 
-.user-card {
+.order-card {
   width: 80%;
   align-items: center;
 }
 
-.user-table {
+.order-table {
 }
 </style>

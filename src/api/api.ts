@@ -91,6 +91,13 @@ const api = {
     const res = await axiosInstance.post("/market/api/v1/order/pay/", body);
     return res.data;
   },
+  returnOrder: async (body: object) => {
+    const res = await axiosInstance.post(
+      "/market/api/v1/order/return_order/",
+      body
+    );
+    return res.data;
+  },
 };
 
 export default api;

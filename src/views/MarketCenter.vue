@@ -66,7 +66,7 @@
       title="确认订单"
       @ok="handlePurchase"
       @cancel="closePurchaseModal"
-      okText="确认支付"
+      okText="创建订单"
       cancelText="取消"
       width="400px"
     >
@@ -89,6 +89,7 @@ import { UserOutlined } from "@ant-design/icons-vue";
 import api from "@/api/api";
 import { message } from "ant-design-vue";
 import { staticURL } from "@/utils/axios";
+import { useRoute } from "vue-router";
 
 // 模拟数据（实际应通过API获取）
 const draftList = ref([]);
@@ -109,6 +110,18 @@ const getDraftList = () => {
 };
 
 getDraftList();
+
+// const route = useRoute();
+//
+// if (route.query.keyword) {
+//   // draftList.value = route.query.data?.list.map((draft) => {
+//   //   draft.image_path = staticURL + draft.image_name;
+//   //   draft.description = draft.description || "无描述"; // 确保描述字段存在
+//   //   return draft;
+//   // });
+// } else {
+//
+// }
 
 // 分页配置
 const currentPage = ref(1);
@@ -142,16 +155,6 @@ const openPurchaseModal = (draft: object) => {
   api.userDetail().then((res) => {
     if (res.code === 0) {
       userBalance.value = res.data.balance;
-    } else {
-      message.error(res.message);
-    }
-  });
-  // 创建订单
-  const params = { draft_id: selectedDraft.value.id };
-  api.createOrder(params).then((res) => {
-    if (res.code === 0) {
-      orderId.value = res.data.id;
-      message.success("订单创建成功，请确认！");
       isPurchaseModalVisible.value = true;
     } else {
       message.error(res.message);
@@ -172,14 +175,13 @@ const handlePurchase = () => {
     if (userBalance.value < draftPrice) {
       message.error("余额不足，请充值后重试！");
     } else {
-      // 确认支付
-      const params = {
-        order_id: orderId.value,
-      };
-      api.orderPay(params).then((res) => {
+      // 创建订单
+      const params = { draft_id: selectedDraft.value.id };
+      api.createOrder(params).then((res) => {
         if (res.code === 0) {
-          message.success("购买成功，请跳转至个人页面-我的订单查看");
-          closePurchaseModal();
+          orderId.value = res.data.id;
+          message.success("订单创建成功，请跳转到个人中心-我的订单进行支付！");
+          isPurchaseModalVisible.value = false;
         } else {
           message.error(res.message);
         }

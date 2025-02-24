@@ -23,4 +23,19 @@ const DESIGNER_APPLICATION_STATUS_MAP = {
   refuse: "未通过",
 };
 
-export { ACCESS_ENUM, ROLE_MAP, GENDER_MAP, DESIGNER_APPLICATION_STATUS_MAP };
+const ORDER_STATUS_MAP = {
+  pending: "待支付",
+  paid: "已支付",
+  pay_failed: "支付失败",
+  shipped: "已发货",
+  received: "已收货",
+  cancelled: "已取消",
+};
+
+export {
+  ACCESS_ENUM,
+  ROLE_MAP,
+  GENDER_MAP,
+  DESIGNER_APPLICATION_STATUS_MAP,
+  ORDER_STATUS_MAP,
+};
