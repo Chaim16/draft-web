@@ -34,8 +34,8 @@ const checkAccess = (loginUser: LoginUser, needAccess?: unknown) => {
     }
   }
 
-  if (needAccess === ACCESS_ENUM.ADMIN) {
-    if (loginUserAccess !== ACCESS_ENUM.ADMIN) {
+  if (needAccess === ACCESS_ENUM.ADMINISTRATOR) {
+    if (loginUserAccess !== ACCESS_ENUM.ADMINISTRATOR) {
       return false;
     }
   }

@@ -44,6 +44,20 @@ const api = {
     const res = await axiosInstance.post("/market/api/v1/user/recharge/", body);
     return res.data;
   },
+  applyDesignerList: async (params: object) => {
+    const res = await axiosInstance.get(
+      "/market/api/v1/user/apply_designer_list/",
+      { params }
+    );
+    return res.data;
+  },
+  approveDesignerApplication: async (body: object) => {
+    const res = await axiosInstance.post(
+      "/market/api/v1/user/approve_designer_application/",
+      body
+    );
+    return res.data;
+  },
 };
 
 export default api;

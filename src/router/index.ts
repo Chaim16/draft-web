@@ -5,6 +5,9 @@ import {
   SwapOutlined,
   UserOutlined,
   PlusOutlined,
+  ShrinkOutlined,
+  PicRightOutlined,
+  AlignCenterOutlined,
 } from "@ant-design/icons-vue";
 import UserRegister from "@/views/user/UserRegister.vue";
 import UserLogin from "@/views/user/UserLogin.vue";
@@ -12,6 +15,9 @@ import HomeView from "@/views/HomeView.vue";
 import UserProfile from "@/views/user/UserProfile.vue";
 import PublishDraft from "@/views/PublishDraft.vue";
 import { ACCESS_ENUM } from "@/utils/constant";
+import DesignerApplication from "@/views/DesignerApplication.vue";
+import UserManagement from "@/views/user/UserManagement.vue";
+import OrderManagement from "@/views/order/OrderManagement.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -49,6 +55,33 @@ const routes: Array<RouteRecordRaw> = [
       access: ACCESS_ENUM.DESIGNER,
     },
     component: PublishDraft,
+  },
+  {
+    path: "/designer_application",
+    name: "设计师申请管理",
+    meta: {
+      icon: ShrinkOutlined,
+      access: ACCESS_ENUM.ADMINISTRATOR,
+    },
+    component: DesignerApplication,
+  },
+  {
+    path: "/user/management",
+    name: "用户管理",
+    meta: {
+      icon: PicRightOutlined,
+      access: ACCESS_ENUM.ADMINISTRATOR,
+    },
+    component: UserManagement,
+  },
+  {
+    path: "/order/management",
+    name: "订单管理",
+    meta: {
+      icon: AlignCenterOutlined,
+      access: ACCESS_ENUM.ADMINISTRATOR,
+    },
+    component: OrderManagement,
   },
   {
     path: "/user/register",

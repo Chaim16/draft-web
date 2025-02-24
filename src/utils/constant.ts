@@ -2,7 +2,7 @@ const ACCESS_ENUM = {
   UNKNOWN: "unknown",
   GENERAL: "general",
   DESIGNER: "designer",
-  ADMIN: "admin",
+  ADMINISTRATOR: "administrator",
 };
 
 const ROLE_MAP = {
@@ -19,8 +19,8 @@ const GENDER_MAP = {
 
 const DESIGNER_APPLICATION_STATUS_MAP = {
   wait_approval: "待审核",
-  PASS: "已通过",
-  REFUSE: "未通过",
+  pass: "已通过",
+  refuse: "未通过",
 };
 
 export { ACCESS_ENUM, ROLE_MAP, GENDER_MAP, DESIGNER_APPLICATION_STATUS_MAP };
