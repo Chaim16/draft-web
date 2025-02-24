@@ -1,9 +1,5 @@
 <template>
-  <div
-    id="artwork-publish"
-    :style="backgroundStyle"
-    class="background-container"
-  >
+  <div id="publish-draft" :style="backgroundStyle" class="background-container">
     <a-form
       class="publish-form"
       :model="formState"
@@ -17,7 +13,7 @@
       </a-typography-title>
 
       <a-form-item
-        label="画稿标题"
+        label="标题"
         name="title"
         :rules="checkRules.title"
         hasFeedback
@@ -34,7 +30,7 @@
       </a-form-item>
 
       <a-form-item
-        label="画稿描述"
+        label="描述"
         name="description"
         :rules="checkRules.description"
       >
@@ -70,23 +66,27 @@
         </a-input-number>
       </a-form-item>
 
-      <a-form-item label="分类" name="category" :rules="checkRules.category">
+      <a-form-item
+        label="分类"
+        name="categoryId"
+        :rules="checkRules.categoryId"
+      >
         <a-select
-          v-model:value="formState.category"
+          v-model:value="formState.categoryId"
           placeholder="请选择作品分类"
           allowClear
         >
           <template #prefix>
             <AppstoreOutlined />
           </template>
-          <a-select-option value="illustration">插画</a-select-option>
-          <a-select-option value="concept">概念设计</a-select-option>
-          <a-select-option value="character">角色设计</a-select-option>
-          <a-select-option value="environment">场景设计</a-select-option>
+          <a-select-option value="1">插画</a-select-option>
+          <a-select-option value="2">概念设计</a-select-option>
+          <a-select-option value="3">角色设计</a-select-option>
+          <a-select-option value="4">场景设计</a-select-option>
         </a-select>
       </a-form-item>
 
-      <a-form-item label="画稿图片" name="image" :rules="checkRules.image">
+      <a-form-item label="图片" name="image">
         <a-upload
           v-model:file-list="fileList"
           list-type="picture-card"
@@ -130,7 +130,7 @@
 import { ref } from "vue";
 import { PlusOutlined } from "@ant-design/icons-vue";
 import { computed } from "vue";
-import type { UploadFile } from "ant-design-vue";
+import { message, UploadFile } from "ant-design-vue";
 // 新增图标引入
 import {
   EditOutlined,
@@ -138,12 +138,15 @@ import {
   DollarOutlined,
   AppstoreOutlined,
 } from "@ant-design/icons-vue";
+import api from "@/api/api";
+import { ApiResponse } from "@/utils/axios";
+import router from "@/router";
 
 const formState = ref({
   title: "",
   description: "",
-  price: 0,
-  category: undefined,
+  price: "",
+  categoryId: "",
 });
 
 const fileList = ref<UploadFile[]>([]);
@@ -164,26 +167,27 @@ const checkRules = {
     { required: true, message: "请输入价格" },
     { type: "number", min: 0, message: "价格不能小于0" },
   ],
-  category: [{ required: true, message: "请选择分类!" }],
-  image: [{ required: true, message: "请上传画稿图片!" }],
+  categoryId: [{ required: true, message: "请选择分类!" }],
 };
 
 // 提交状态
 const submitting = ref(false);
 
-const beforeUpload = (file: UploadFile) => {
-  fileList.value = [file];
+const beforeUpload = (file: File) => {
+  const isImage = file.type === "image/jpeg" || file.type === "image/png";
+  const isWithinSizeLimit = file.size / 1024 / 1024 < 5; // 小于5MB
 
-  // 生成图片预览URL
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    if (e.target?.result) {
-      backgroundImageUrl.value = e.target.result as string;
-    }
-  };
-  reader.readAsDataURL(file as unknown as Blob);
+  if (!isImage) {
+    message.error("请上传 JPG/PNG 格式的图片！");
+    return false;
+  }
 
-  return false;
+  if (!isWithinSizeLimit) {
+    message.error("上传图片大小不能超过 5MB！");
+    return false;
+  }
+
+  return true;
 };
 
 // 计算属性处理背景样式
@@ -199,12 +203,27 @@ const handlePreview = (file: UploadFile) => {
 };
 
 const publish = () => {
+  const formData = new FormData();
+  formData.append("image", fileList.value[0]?.originFileObj);
+  formData.append("title", formState.value.title);
+  formData.append("price", formState.value.price);
+  formData.append("description", formState.value.description);
+  formData.append("category_id", formState.value.categoryId);
+
+  api.publishDraft(formData).then((res: ApiResponse) => {
+    if (res.code === 0) {
+      message.info("发布成功");
+      router.push("/market");
+    } else {
+      message.error(res.message);
+    }
+  });
   console.log(formState.value, fileList.value);
 };
 </script>
 
 <style scoped>
-#artwork-publish {
+#publish-draft {
   padding: 40px 24px;
   min-height: 100vh;
 }
