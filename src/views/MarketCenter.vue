@@ -89,7 +89,6 @@ import { UserOutlined } from "@ant-design/icons-vue";
 import api from "@/api/api";
 import { message } from "ant-design-vue";
 import { staticURL } from "@/utils/axios";
-import { useRoute } from "vue-router";
 
 // 模拟数据（实际应通过API获取）
 const draftList = ref([]);

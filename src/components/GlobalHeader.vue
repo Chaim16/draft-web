@@ -5,24 +5,26 @@
       <span class="system-name">在线画稿交易平台</span>
     </div>
     <div class="header-middle">
-      <a-menu
-        mode="horizontal"
-        :selected-keys="selectedKeys"
-        :inlineCollapsed="false"
-      >
-        <a-menu-item
-          v-for="item in filteredRoutes"
-          :key="item.path"
-          @click="handleMenuClick(item)"
+      <div class="menu-wrapper">
+        <a-menu
+          mode="horizontal"
+          :selected-keys="selectedKeys"
+          :inline-collapsed="false"
         >
-          <component
-            :is="item.meta?.icon"
-            v-if="item.meta?.icon"
-            class="menu-icon"
-          />
-          {{ item.name }}
-        </a-menu-item>
-      </a-menu>
+          <a-menu-item
+            v-for="item in filteredRoutes"
+            :key="item.path"
+            @click="handleMenuClick(item)"
+          >
+            <component
+              :is="item.meta?.icon"
+              v-if="item.meta?.icon"
+              class="menu-icon"
+            />
+            {{ item.name }}
+          </a-menu-item>
+        </a-menu>
+      </div>
       <div class="search-wrapper">
         <a-input-search
           v-model:value="searchKeyword"
@@ -164,6 +166,10 @@ const logout = () => {
 #header ::v-deep .ant-menu-item:hover,
 #header ::v-deep .ant-menu-item-selected {
   background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.menu-wrapper {
+  width: 100%;
 }
 
 /* 更新后的搜索框样式 */
