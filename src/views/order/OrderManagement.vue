@@ -1,9 +1,9 @@
 <template>
   <div class="container">
-    <div class="product-list">
+    <div class="draft-list">
       <!-- 商品展示区 -->
-      <div class="product-content">
-        <a-row :gutter="[24, 24]" class="product-content-row">
+      <div class="draft-content">
+        <a-row :gutter="[24, 24]" class="draft-content-row">
           <a-col
             v-for="product in displayedProducts"
             :key="product.id"
@@ -25,7 +25,7 @@
               </template>
               <a-card-meta>
                 <template #title>
-                  <div class="product-title">{{ product.name }}</div>
+                  <div class="draft-title">{{ product.name }}</div>
                 </template>
                 <template #description>
                   <div class="product-info">
@@ -104,27 +104,26 @@ const fallbackImage =
   padding: 24px 0;
 }
 
-.product-list {
+.draft-list {
   width: 80%;
   max-width: 1600px;
   margin: 0 auto;
   padding: 24px 0;
-  //min-height: calc(100vh - 64px - 60px); /* 保留安全高度 */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   margin-top: 40px;
 }
 
-.product-content {
+.draft-content {
   flex: 1;
 }
 
-.product-content-row {
+.draft-content-row {
   margin-bottom: 0;
 }
 
-.product-title {
+.draft-title {
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 8px;

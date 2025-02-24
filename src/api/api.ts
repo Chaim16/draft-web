@@ -68,6 +68,12 @@ const api = {
     const res = await axiosInstance.post("/market/api/v1/draft/publish/", body);
     return res.data;
   },
+  draftList: async (params: object) => {
+    const res = await axiosInstance.get("/market/api/v1/draft/draft_list/", {
+      params,
+    });
+    return res.data;
+  },
 };
 
 export default api;

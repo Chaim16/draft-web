@@ -1,12 +1,12 @@
 <template>
   <div class="container">
-    <div class="product-list">
+    <div class="draft-list">
       <!-- 商品展示区 -->
-      <div class="product-content">
-        <a-row :gutter="[24, 24]" class="product-content-row">
+      <div class="draft-content">
+        <a-row :gutter="[24, 24]" class="draft-content-row">
           <a-col
-            v-for="product in displayedProducts"
-            :key="product.id"
+            v-for="draft in displayedDraft"
+            :key="draft.id"
             :xs="6"
             :sm="6"
             :md="6"
@@ -16,7 +16,7 @@
             <a-card hoverable>
               <template #cover>
                 <a-image
-                  :src="product.image"
+                  :src="draft.image_path"
                   :preview="false"
                   height="200px"
                   :fallback="fallbackImage"
@@ -25,14 +25,14 @@
               </template>
               <a-card-meta>
                 <template #title>
-                  <div class="product-title">{{ product.name }}</div>
+                  <div class="draft-title">{{ draft.title }}</div>
                 </template>
                 <template #description>
                   <div class="product-info">
-                    <div class="price">¥{{ formatPrice(product.price) }}</div>
+                    <div class="price">¥{{ formatPrice(draft.price) }}</div>
                     <div class="designer">
                       <user-outlined />
-                      {{ product.designer }}
+                      {{ draft.designer }}
                     </div>
                   </div>
                 </template>
@@ -44,7 +44,7 @@
       <div class="pagination-wrapper">
         <a-pagination
           v-model:current="currentPage"
-          :total="totalProducts"
+          :total="totalDraft"
           :page-size="pageSize"
           show-less-items
           show-quick-jumper
@@ -58,26 +58,39 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { UserOutlined } from "@ant-design/icons-vue";
+import api from "@/api/api";
+import { message } from "ant-design-vue";
+import { staticURL } from "@/utils/axios";
 
 // 模拟数据（实际应通过API获取）
-const mockProducts = Array.from({ length: 50 }, (_, i) => ({
-  id: i + 1,
-  name: `设计作品 ${i + 1}`,
-  price: Math.floor(Math.random() * 1000) + 100,
-  designer: `设计师 ${String.fromCharCode(65 + (i % 26))}`,
-  image: `https://picsum.photos/300/200?random=${i}`,
-}));
+const draftList = ref([]);
+
+const getDraftList = () => {
+  api.draftList({}).then((res) => {
+    if (res.code === 0) {
+      const data = res.data;
+      draftList.value = data?.list.map((draft) => {
+        draft.image_path = staticURL + draft.image_name;
+        return draft;
+      });
+    } else {
+      message.error(res.message);
+    }
+  });
+};
+
+getDraftList();
 
 // 分页配置
 const currentPage = ref(1);
 const pageSize = ref(8);
-const totalProducts = computed(() => mockProducts.length);
+const totalDraft = computed(() => draftList.value.length);
 
 // 显示的商品数据
-const displayedProducts = computed(() => {
+const displayedDraft = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value;
   const end = start + pageSize.value;
-  return mockProducts.slice(start, end);
+  return draftList.value.slice(start, end);
 });
 
 // 分页切换
@@ -104,27 +117,26 @@ const fallbackImage =
   padding: 24px 0;
 }
 
-.product-list {
+.draft-list {
   width: 80%;
   max-width: 1600px;
   margin: 0 auto;
   padding: 24px 0;
-  //min-height: calc(100vh - 64px - 60px); /* 保留安全高度 */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   margin-top: 40px;
 }
 
-.product-content {
+.draft-content {
   flex: 1;
 }
 
-.product-content-row {
+.draft-content-row {
   margin-bottom: 0;
 }
 
-.product-title {
+.draft-title {
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 8px;

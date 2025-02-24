@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const baseURL = "http://localhost:8000";
+const staticURL = baseURL + "/static/";
 
 const axiosInstance = axios.create({
   baseURL: baseURL,
@@ -74,4 +75,4 @@ axiosInstance.interceptors.response.use(
 );
 
 export default axiosInstance;
-export { baseURL };
+export { baseURL, staticURL };
