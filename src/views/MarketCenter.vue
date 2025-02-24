@@ -29,10 +29,17 @@
                 </template>
                 <template #description>
                   <div class="product-info">
-                    <div class="price">¥{{ formatPrice(draft.price) }}</div>
+                    <div class="price">¥{{ draft.price }}</div>
                     <div class="designer">
                       <user-outlined />
                       {{ draft.designer }}
+                      <span style="width: 8px"></span>
+                      <a-button
+                        type="primary"
+                        size="small"
+                        @click="openPurchaseModal(draft)"
+                        >购买
+                      </a-button>
                     </div>
                   </div>
                 </template>
@@ -52,6 +59,27 @@
         />
       </div>
     </div>
+
+    <!-- 购买模态框 -->
+    <a-modal
+      v-model:visible="isPurchaseModalVisible"
+      title="确认订单"
+      @ok="handlePurchase"
+      @cancel="closePurchaseModal"
+      okText="确认支付"
+      cancelText="取消"
+      width="400px"
+    >
+      <div class="purchase-modal-content">
+        <div class="draft-detail-wrapper">
+          <p>标题: {{ selectedDraft?.title }}</p>
+          <p>描述：{{ selectedDraft?.description }}</p>
+          <p>设计师：{{ selectedDraft?.designer }}</p>
+          <p>价格： ¥{{ selectedDraft?.price }}</p>
+        </div>
+        <div class="balance-wrapper">您的余额：¥{{ userBalance }}</div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -71,6 +99,7 @@ const getDraftList = () => {
       const data = res.data;
       draftList.value = data?.list.map((draft) => {
         draft.image_path = staticURL + draft.image_name;
+        draft.description = draft.description || "无描述"; // 确保描述字段存在
         return draft;
       });
     } else {
@@ -98,14 +127,66 @@ const handlePageChange = (page: number) => {
   currentPage.value = page;
 };
 
-// 价格格式化过滤器
-const formatPrice = (value: number) => {
-  return value.toFixed(2);
-};
-
 // 图片加载失败时使用的默认图
 const fallbackImage =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
+// 购买模态框
+const isPurchaseModalVisible = ref(false);
+const selectedDraft = ref(null);
+const userBalance = ref(0);
+const orderId = ref(null);
+
+const openPurchaseModal = (draft: object) => {
+  selectedDraft.value = draft;
+  api.userDetail().then((res) => {
+    if (res.code === 0) {
+      userBalance.value = res.data.balance;
+    } else {
+      message.error(res.message);
+    }
+  });
+  // 创建订单
+  const params = { draft_id: selectedDraft.value.id };
+  api.createOrder(params).then((res) => {
+    if (res.code === 0) {
+      orderId.value = res.data.id;
+      message.success("订单创建成功，请确认！");
+      isPurchaseModalVisible.value = true;
+    } else {
+      message.error(res.message);
+    }
+  });
+};
+
+const closePurchaseModal = () => {
+  isPurchaseModalVisible.value = false;
+  selectedDraft.value = null;
+  userBalance.value = 0;
+  orderId.value = null;
+};
+
+const handlePurchase = () => {
+  if (selectedDraft.value) {
+    const draftPrice = selectedDraft.value.price;
+    if (userBalance.value < draftPrice) {
+      message.error("余额不足，请充值后重试！");
+    } else {
+      // 确认支付
+      const params = {
+        order_id: orderId.value,
+      };
+      api.orderPay(params).then((res) => {
+        if (res.code === 0) {
+          message.success("购买成功，请跳转至个人页面-我的订单查看");
+          closePurchaseModal();
+        } else {
+          message.error(res.message);
+        }
+      });
+    }
+  }
+};
 </script>
 
 <style scoped>
@@ -178,5 +259,12 @@ const fallbackImage =
 
 :deep(.ant-image-img) {
   object-fit: cover;
+}
+
+.purchase-modal-content {
+}
+
+.draft-detail-wrapper {
+  margin-top: 24px;
 }
 </style>

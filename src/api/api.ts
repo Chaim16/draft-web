@@ -74,6 +74,23 @@ const api = {
     });
     return res.data;
   },
+  createOrder: async (body: object) => {
+    const res = await axiosInstance.post(
+      "/market/api/v1/order/create_order/",
+      body
+    );
+    return res.data;
+  },
+  orderList: async (params: object) => {
+    const res = await axiosInstance.get("/market/api/v1/order/order_list/", {
+      params,
+    });
+    return res.data;
+  },
+  orderPay: async (body: object) => {
+    const res = await axiosInstance.post("/market/api/v1/order/pay/", body);
+    return res.data;
+  },
 };
 
 export default api;
