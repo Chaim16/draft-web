@@ -58,6 +58,12 @@ const api = {
     );
     return res.data;
   },
+  userList: async (params: object) => {
+    const res = await axiosInstance.get("/market/api/v1/user/user_list/", {
+      params,
+    });
+    return res.data;
+  },
 };
 
 export default api;

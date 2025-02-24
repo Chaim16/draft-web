@@ -1,170 +1,97 @@
 <template>
-  <div class="container">
-    <div class="product-list">
-      <!-- 商品展示区 -->
-      <div class="product-content">
-        <a-row :gutter="[24, 24]" class="product-content-row">
-          <a-col
-            v-for="product in displayedProducts"
-            :key="product.id"
-            :xs="6"
-            :sm="6"
-            :md="6"
-            :lg="6"
-            :xl="6"
-          >
-            <a-card hoverable>
-              <template #cover>
-                <a-image
-                  :src="product.image"
-                  :preview="false"
-                  height="200px"
-                  :fallback="fallbackImage"
-                  lazy
-                />
-              </template>
-              <a-card-meta>
-                <template #title>
-                  <div class="product-title">{{ product.name }}</div>
-                </template>
-                <template #description>
-                  <div class="product-info">
-                    <div class="price">¥{{ formatPrice(product.price) }}</div>
-                    <div class="designer">
-                      <user-outlined />
-                      {{ product.designer }}
-                    </div>
-                  </div>
-                </template>
-              </a-card-meta>
-            </a-card>
-          </a-col>
-        </a-row>
-      </div>
-      <div class="pagination-wrapper">
-        <a-pagination
-          v-model:current="currentPage"
-          :total="totalProducts"
-          :page-size="pageSize"
-          show-less-items
-          show-quick-jumper
-          @change="handlePageChange"
-        />
-      </div>
-    </div>
+  <div id="container">
+    <a-card title="用户列表" bordered class="user-card">
+      <a-table
+        :dataSource="userList"
+        :columns="columns"
+        :pagination="pagination"
+        class="user-table"
+        rowKey="id"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'operate'">
+            <a-button danger @click="deleteUser(record.id)"> 删除</a-button>
+          </template>
+          <template v-else-if="column.key === 'role'">
+            <a-tag :color="record.role === 'designer' ? 'green' : 'blue'">
+              {{ ROLE_MAP[record.role] }}
+            </a-tag>
+          </template>
+          <template v-else-if="column.key === 'gender'">
+            {{ record.gender === 1 ? "男" : "女" }}
+          </template>
+          <template v-else>
+            <a-td>{{ record[column.dataIndex] }}</a-td>
+          </template>
+        </template>
+      </a-table>
+    </a-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { UserOutlined } from "@ant-design/icons-vue";
+import { ref, watch } from "vue";
+import { message } from "ant-design-vue";
+import api from "@/api/api";
+import { ApiResponse } from "@/utils/axios";
+import { ROLE_MAP } from "../../utils/constant";
 
-// 模拟数据（实际应通过API获取）
-const mockProducts = Array.from({ length: 50 }, (_, i) => ({
-  id: i + 1,
-  name: `设计作品 ${i + 1}`,
-  price: Math.floor(Math.random() * 1000) + 100,
-  designer: `设计师 ${String.fromCharCode(65 + (i % 26))}`,
-  image: `https://picsum.photos/300/200?random=${i}`,
-}));
+const userList = ref([]);
 
-// 分页配置
-const currentPage = ref(1);
-const pageSize = ref(8);
-const totalProducts = computed(() => mockProducts.length);
+const getUserList = () => {
+  api.userList({}).then((res: ApiResponse) => {
+    if (res.code === 0) {
+      userList.value = res.data?.list.map((item: object) => {
+        return item;
+      });
+    } else {
+      message.error(res.message);
+    }
+  });
+};
 
-// 显示的商品数据
-const displayedProducts = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return mockProducts.slice(start, end);
+getUserList();
+
+const pagination = ref({
+  pageSize: 10,
+  current: 1,
+  total: userList.value.length,
 });
 
-// 分页切换
-const handlePageChange = (page: number) => {
-  currentPage.value = page;
-};
+watch(userList, () => {
+  pagination.value.total = userList.value.length;
+});
 
-// 价格格式化过滤器
-const formatPrice = (value: number) => {
-  return value.toFixed(2);
-};
+const columns = [
+  { title: "序号", dataIndex: "id", key: "id" },
+  { title: "用户名", dataIndex: "username", key: "username" },
+  { title: "昵称", dataIndex: "nickname", key: "nickname" },
+  {
+    title: "角色",
+    dataIndex: "role",
+    key: "role",
+  },
+  { title: "性别", dataIndex: "gender", key: "gender" },
+  { title: "手机号", dataIndex: "phone", key: "phone" },
+  { title: "操作", key: "operate" },
+];
 
-// 图片加载失败时使用的默认图
-const fallbackImage =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+const deleteUser = () => {
+  message.success("删除成功");
+};
 </script>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
+#container {
   align-items: center;
-  min-height: calc(100vh - 64px); /* 减去头部高度 */
-  padding: 24px 0;
+  margin-left: 15%;
 }
 
-.product-list {
+.user-card {
   width: 80%;
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 24px 0;
-  //min-height: calc(100vh - 64px - 60px); /* 保留安全高度 */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  margin-top: 40px;
-}
-
-.product-content {
-  flex: 1;
-}
-
-.product-content-row {
-  margin-bottom: 0;
-}
-
-.product-title {
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-.product-info {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
-.price {
-  color: #ff4d4f;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.designer {
-  color: #666;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.pagination-wrapper {
-  margin-top: 32px;
-  display: flex;
-  justify-content: center;
-}
-
-:deep(.ant-card) {
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-:deep(.ant-card-cover) {
-  background: #f5f5f5;
-}
-
-:deep(.ant-image-img) {
-  object-fit: cover;
+.user-table {
 }
 </style>
