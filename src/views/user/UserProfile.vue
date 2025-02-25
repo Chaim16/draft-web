@@ -397,8 +397,7 @@ const checkApplicationStatus = () => {
     if (res.code !== 0) {
       message.error(res.message);
     } else {
-      console.log(res);
-      if (res.data) {
+      if (res.data?.status !== undefined) {
         const record = res.data;
         applicationInfo.status = record.status;
         applicationInfo.reason = record.reason;
