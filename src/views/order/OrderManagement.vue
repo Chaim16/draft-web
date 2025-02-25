@@ -39,9 +39,14 @@
                 </a-button>
               </a-popconfirm>
 
-              <a-button danger size="small" @click="deleteOrder(record)">
-                删除
-              </a-button>
+              <a-popconfirm
+                title="确定要删除吗？"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="deleteOrder(record)"
+              >
+                <a-button danger size="small">删除</a-button>
+              </a-popconfirm>
             </a-space>
           </template>
         </template>
@@ -136,8 +141,15 @@ const handleReturnOrder = (record: object) => {
   });
 };
 
-const deleteOrder = () => {
-  message.success("删除成功");
+const deleteOrder = (record) => {
+  api.deleteOrder({ order_id: record.id }).then((res: ApiResponse) => {
+    if (res.code === 0) {
+      message.success("删除成功");
+      getOrderList();
+    } else {
+      message.error(res.message);
+    }
+  });
 };
 </script>
 

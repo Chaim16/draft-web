@@ -10,7 +10,17 @@
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operate'">
-            <a-button danger @click="deleteUser(record.id)"> 删除</a-button>
+            <a-popconfirm
+              title="确定要删除吗？"
+              ok-text="确认"
+              cancel-text="取消"
+              @confirm="deleteUser(record)"
+              :disabled="record.role === 'administrator'"
+            >
+              <a-button danger :disabled="record.role === 'administrator'"
+                >删除</a-button
+              >
+            </a-popconfirm>
           </template>
           <template v-else-if="column.key === 'role'">
             <a-tag :color="record.role === 'designer' ? 'green' : 'blue'">
@@ -76,8 +86,16 @@ const columns = [
   { title: "操作", key: "operate" },
 ];
 
-const deleteUser = () => {
-  message.success("删除成功");
+const deleteUser = (record) => {
+  const params = { username: record.username };
+  api.deleteUser(params).then((res: ApiResponse) => {
+    if (res.code === 0) {
+      message.success("删除成功");
+      getUserList();
+    } else {
+      message.error(res.message);
+    }
+  });
 };
 </script>
 

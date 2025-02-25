@@ -98,6 +98,17 @@ const api = {
     );
     return res.data;
   },
+  deleteUser: async (body: object) => {
+    const res = await axiosInstance.post("/market/api/v1/user/del_user/", body);
+    return res.data;
+  },
+  deleteOrder: async (body: object) => {
+    const res = await axiosInstance.post(
+      "/market/api/v1/order/del_order/",
+      body
+    );
+    return res.data;
+  },
 };
 
 export default api;

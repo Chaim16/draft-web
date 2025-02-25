@@ -94,9 +94,14 @@
                 </a-button>
               </a-popconfirm>
 
-              <a-button danger size="small" @click="handleDeleteOrder(record)">
-                删除
-              </a-button>
+              <a-popconfirm
+                title="确定要删除吗？"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="handleDeleteOrder(record)"
+              >
+                <a-button danger size="small">删除</a-button>
+              </a-popconfirm>
             </a-space>
           </template>
         </template>
@@ -356,9 +361,15 @@ const handleCreateOrder = (order: object) => {
   });
 };
 
-const handleDeleteOrder = (order: object) => {
-  console.log(order);
-  message.success("订单已删除");
+const handleDeleteOrder = (record) => {
+  api.deleteOrder({ order_id: record.id }).then((res: ApiResponse) => {
+    if (res.code === 0) {
+      message.success("删除成功");
+      getOrderList();
+    } else {
+      message.error(res.message);
+    }
+  });
 };
 
 // 申请设计师功能
