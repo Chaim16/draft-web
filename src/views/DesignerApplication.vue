@@ -17,9 +17,9 @@
             >
               审批
             </a-button>
-            <a-button danger @click="deleteApplication(record.id)">
-              删除
-            </a-button>
+            <!--            <a-button danger @click="deleteApplication(record.id)">-->
+            <!--              删除-->
+            <!--            </a-button>-->
           </template>
           <template v-else-if="column.key === 'status'">
             <a-tag
@@ -154,10 +154,10 @@ const handleApproval = () => {
   }
 };
 
-const deleteApplication = (id: number) => {
-  applications.value = applications.value.filter((app) => app.id !== id);
-  message.success("删除成功");
-};
+// const deleteApplication = (id: number) => {
+//   applications.value = applications.value.filter((app) => app.id !== id);
+//   message.success("删除成功");
+// };
 </script>
 
 <style scoped>
