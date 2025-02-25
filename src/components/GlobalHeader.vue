@@ -1,7 +1,7 @@
 <template>
   <div id="header">
     <div class="header-left">
-      <img class="logo" src="@/assets/logo.svg" alt="logo" />
+      <img class="logo" src="@/assets/logo.png" alt="logo" />
       <span class="system-name">在线画稿交易平台</span>
     </div>
     <div class="header-middle">
