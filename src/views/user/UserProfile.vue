@@ -161,6 +161,23 @@
             <a-textarea v-model:value="applicationForm.reason" />
           </a-form-item>
         </a-form>
+        <a-form layout="vertical">
+          <a-form-item label="申请材料">
+            <a-upload-dragger
+              v-model:fileList="fileList"
+              :class="{ uploaded: fileList.length }"
+              :before-upload="beforeUpload"
+            >
+              <p class="ant-upload-drag-icon">
+                <inbox-outlined></inbox-outlined>
+              </p>
+              <p class="ant-upload-text">点击或拖拽文件到此区域</p>
+              <p class="ant-upload-hint">
+                支持上传pdf、word、jpg、png格式文件，大小不超过2M
+              </p>
+            </a-upload-dragger>
+          </a-form-item>
+        </a-form>
       </div>
       <div v-else>
         <p>
@@ -189,6 +206,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from "vue";
+import { InboxOutlined } from "@ant-design/icons-vue";
 import {
   EditOutlined,
   UserAddOutlined,
@@ -204,6 +222,8 @@ import {
 } from "@/utils/constant";
 import { ApiResponse } from "@/utils/axios";
 import formatTimestamp from "@/utils/public";
+
+const fileList = ref([]);
 
 // 用户数据
 const userInfo = reactive({
@@ -295,6 +315,10 @@ const showEditModal = () => {
   editForm.gender = userInfo.gender;
   editForm.phone = userInfo.phone;
   editVisible.value = true;
+};
+
+const beforeUpload = (file, fileList) => {
+  return Promise.resolve(file);
 };
 
 const handleEditSubmit = () => {
